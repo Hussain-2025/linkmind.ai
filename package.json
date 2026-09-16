@@ -12,6 +12,7 @@
     "build:client": "npm --prefix client run build",
     "build:server": "npm --prefix server run build",
     "build": "npm --prefix client run build && npm --prefix server run build",
+    "start": "node server/dist/server.cjs",
     "install:all": "npm --prefix client install && npm --prefix server install"
   }
 }

@@ -103,18 +103,20 @@ async function startServer() {
   });
 
   // Serve static assets if client build exists, otherwise provide backend info
-  const clientDistPath = path.resolve(process.cwd(), "../client/dist");
-  const localDistPath = path.resolve(process.cwd(), "dist/client");
+  const candidateDistPaths = [
+    path.resolve(process.cwd(), "client/dist"),
+    path.resolve(process.cwd(), "../client/dist"),
+    path.resolve(__dirname, "../../client/dist"),
+    path.resolve(process.cwd(), "dist/client"),
+    path.resolve(process.cwd(), "dist"),
+  ];
+  const clientDistPath = candidateDistPaths.find((p) => fs.existsSync(path.join(p, "index.html")));
 
-  if (fs.existsSync(path.join(clientDistPath, "index.html"))) {
+  if (clientDistPath) {
+    console.log(`Serving compiled client assets from: ${clientDistPath}`);
     app.use(express.static(clientDistPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(clientDistPath, "index.html"));
-    });
-  } else if (fs.existsSync(path.join(localDistPath, "index.html"))) {
-    app.use(express.static(localDistPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(localDistPath, "index.html"));
     });
   } else {
     app.get("/", (req, res) => {
