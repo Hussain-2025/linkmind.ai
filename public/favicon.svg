@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1e;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#09090b;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="main" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818cf8;stop-opacity:1"/>
+      <stop offset="50%" style="stop-color:#6366f1;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c084fc;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0.1"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#6366f1" flood-opacity="0.5"/>
+    </filter>
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Subtle ambient glow -->
+  <circle cx="200" cy="180" r="140" fill="url(#glow)" opacity="0.3"/>
+  <circle cx="340" cy="360" r="100" fill="#6366f1" opacity="0.06"/>
+
+  <!-- Chain link element (representing URL links) -->
+  <g filter="shadow">
+    <!-- Link chain - top -->
+    <rect x="130" y="140" width="120" height="56" rx="28" fill="none" stroke="url(#main)" stroke-width="16" opacity="0.4"/>
+    <!-- Link chain - bottom overlapping -->
+    <rect x="200" y="170" width="120" height="56" rx="28" fill="none" stroke="url(#main)" stroke-width="16" opacity="0.4"/>
+  </g>
+
+  <!-- Stylized L letterform -->
+  <g filter="innerGlow">
+    <path d="M 172 130 L 172 340 L 340 340" fill="none" stroke="url(#main)" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Neural network nodes (AI intelligence) -->
+  <circle cx="340" cy="340" r="14" fill="#a78bfa" opacity="0.9"/>
+  <circle cx="340" cy="260" r="8" fill="#818cf8" opacity="0.7"/>
+  <circle cx="380" cy="300" r="6" fill="#c084fc" opacity="0.6"/>
+  <circle cx="172" cy="130" r="14" fill="#a78bfa" opacity="0.9"/>
+
+  <!-- Neural connections -->
+  <line x1="340" y1="260" x2="340" y2="340" stroke="#818cf8" stroke-width="2" opacity="0.4"/>
+  <line x1="340" y1="260" x2="380" y2="300" stroke="#818cf8" stroke-width="2" opacity="0.3"/>
+  <line x1="380" y1="300" x2="340" y2="340" stroke="#c084fc" stroke-width="2" opacity="0.3"/>
+
+  <!-- Analytics pulse dot -->
+  <circle cx="172" cy="130" r="24" fill="#6366f1" opacity="0.15">
+    <animate attributeName="r" values="14;28;14" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.05;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
