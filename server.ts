@@ -34,7 +34,7 @@ async function startServer() {
   const app = express();
   app.set("trust proxy", true);
   const server = http.createServer(app);
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Global DDoS Rate Limiter Protection
   app.use(globalRateLimiter);
