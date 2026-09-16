@@ -30,6 +30,8 @@ import {
   CalendarDays,
   ExternalLink,
   Info,
+  Copy,
+  Check,
 } from "lucide-react";
 
 const COLORS = ["#6366f1", "#a855f7", "#3b82f6", "#ec4899", "#10b981", "#f59e0b"];
@@ -45,6 +47,14 @@ export default function LinkDetails() {
   const [aiInsights, setAiInsights] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
   const [aiStep, setAiStep] = useState("");
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyShortUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const { activeVisitors, subscribeToLink } = useSocket();
 
@@ -196,10 +206,10 @@ export default function LinkDetails() {
         {/* Link Heading summary */}
         <div className="glass-panel rounded-2xl p-6 mb-8 border-white/5 bg-slate-900/45">
           <div className="md:flex md:items-center md:justify-between">
-            <div className="min-w-0 flex-1 space-y-1">
+            <div className="min-w-0 flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-display text-2xl font-black text-white">
-                  /{link.shortCode}
+                  /{link.customAlias || link.shortCode}
                 </h2>
                 {link.isOneTime && (
                   <span className="px-2 py-0.5 rounded text-[9px] font-mono font-semibold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
@@ -212,16 +222,52 @@ export default function LinkDetails() {
                   </span>
                 )}
               </div>
+
+              {/* Actionable Clickable Short URL */}
+              {(() => {
+                const shortUrl = `${window.location.origin}/r/${link.customAlias || link.shortCode}`;
+                return (
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <span className="text-xs text-slate-400 font-semibold">Short URL:</span>
+                    <a
+                      href={shortUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-indigo-500/10 text-indigo-300 hover:text-indigo-200 border border-indigo-500/25 text-xs font-mono transition"
+                      title="Click to open short link and test redirect"
+                    >
+                      <span>{shortUrl}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <button
+                      onClick={() => handleCopyShortUrl(shortUrl)}
+                      className="inline-flex items-center space-x-1 text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 transition cursor-pointer"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          <span>Copy URL</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })()}
               
-              <p className="text-xs text-slate-400 max-w-3xl truncate" title={link.originalUrl}>
-                Target: <span className="text-slate-300 hover:underline font-mono">{link.originalUrl}</span>
+              <p className="text-xs text-slate-400 max-w-3xl truncate pt-1" title={link.originalUrl}>
+                Destination: <span className="text-slate-300 hover:underline font-mono">{link.originalUrl}</span>
               </p>
             </div>
 
             <div className="mt-4 md:mt-0 md:ml-6 flex items-center space-x-3 shrink-0">
               <button
                 onClick={loadStats}
-                className="inline-flex items-center space-x-1.5 rounded-lg border border-white/5 bg-slate-950 px-3.5 py-2 text-xs font-semibold hover:bg-slate-900 transition cursor-pointer"
+                className="inline-flex items-center space-x-1.5 rounded-lg border border-indigo-500/25 bg-indigo-600/15 px-3.5 py-2 text-xs font-semibold text-indigo-300 hover:bg-indigo-600/25 transition cursor-pointer"
                 title="Refresh stats"
               >
                 <RefreshCw className="h-3.5 w-3.5" />

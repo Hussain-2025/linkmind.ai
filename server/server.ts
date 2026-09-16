@@ -29,6 +29,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import redirectRoutes from "./routes/redirectRoutes.js";
 import apiKeyRoutes from "./routes/apiKeyRoutes.js";
+import { Link } from "./models/Link.js";
 
 async function startServer() {
   const app = express();
@@ -96,6 +97,24 @@ async function startServer() {
 
   // Setup Redirects with click anti-spam protection
   app.use("/r", redirectRateLimiter, redirectRoutes);
+
+  // Direct root shortlink redirects: /:code (e.g. domain.com/XOtDjO)
+  const reservedFrontendRoutes = new Set([
+    "login", "dashboard", "links", "campaigns", "admin", "unlock", "api", "r", "assets", "favicon.svg", "index.html"
+  ]);
+  app.get("/:code", async (req, res, next) => {
+    const { code } = req.params;
+    if (!code || reservedFrontendRoutes.has(code.toLowerCase())) {
+      return next();
+    }
+    try {
+      const link = await Link.findOne({ $or: [{ shortCode: code }, { customAlias: code }] });
+      if (link) {
+        return res.redirect(`/r/${code}`);
+      }
+    } catch {}
+    next();
+  });
 
   // Root status endpoint
   app.get("/api/health", (req, res) => {

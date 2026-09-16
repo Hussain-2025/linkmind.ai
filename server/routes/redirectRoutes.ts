@@ -79,9 +79,10 @@ router.get("/:code", async (req: Request, res: Response): Promise<void> => {
     }
 
     // 3. Performance Uplift: Non-Blocking Background Analytics Queue Event
+    const rawIp = req.headers["x-forwarded-for"]?.toString().split(",")[0].trim() || req.ip || "127.0.0.1";
     const payload = {
       linkId: link._id.toString(),
-      ip: req.ip || req.headers["x-forwarded-for"]?.toString() || "Anonymous",
+      ip: rawIp,
       userAgent: req.get("user-agent"),
       referer: req.get("referrer") || "Direct",
       campaignId: link.campaignId?.toString(),
@@ -135,9 +136,10 @@ router.post("/unlock/:code", async (req: Request, res: Response): Promise<void> 
     }
 
     // Capture visitor click via background queue
+    const rawIp = req.headers["x-forwarded-for"]?.toString().split(",")[0].trim() || req.ip || "127.0.0.1";
     const payload = {
       linkId: link._id.toString(),
-      ip: req.ip || req.headers["x-forwarded-for"]?.toString() || "Anonymous",
+      ip: rawIp,
       userAgent: req.get("user-agent"),
       referer: req.get("referrer") || "Direct",
       campaignId: link.campaignId?.toString(),

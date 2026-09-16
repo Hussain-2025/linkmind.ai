@@ -1,4 +1,5 @@
 import { Queue, Worker } from "bullmq";
+import mongoose from "mongoose";
 import { Analytics } from "../models/Analytics.js";
 import { Link } from "../models/Link.js";
 import { getIOInstance } from "../sockets.js";
@@ -83,10 +84,12 @@ export async function processAnalyticsJob(jobData: {
     const { browser, os, device } = parseUserAgent(userAgent);
     const { country, city } = getGeoIP(ip);
 
+    const targetLinkId = new mongoose.Types.ObjectId(linkId);
+
     // Uniqueness constraint: checked within 24hr window
     const oneDayAgo = new Date(new Date(timestamp).getTime() - 24 * 60 * 60 * 1000);
     const previousClick = await Analytics.findOne({
-      linkId,
+      linkId: targetLinkId,
       ip,
       timestamp: { $gte: oneDayAgo },
     });
@@ -94,7 +97,7 @@ export async function processAnalyticsJob(jobData: {
 
     // Create record in Database
     const clickDoc = await Analytics.create({
-      linkId,
+      linkId: targetLinkId,
       ip,
       country,
       city,
@@ -105,6 +108,9 @@ export async function processAnalyticsJob(jobData: {
       isUnique,
       timestamp: new Date(timestamp),
     });
+
+    // Also update Link clicks count if exists
+    await Link.updateOne({ _id: targetLinkId }, { $inc: { clicks: 1 } }).catch(() => {});
 
     // Realtime websocket emit
     const io = getIOInstance();
@@ -210,15 +216,14 @@ export async function enqueueClickTelemetry(payload: {
   if (isRedis && analyticsQueue) {
     try {
       await analyticsQueue.add("visitor-click", payload);
+      return;
     } catch (err: any) {
-      console.error("BullMQ push failed, fallback routing to local memory queue:", err.message);
-      memoryQueue.push(payload);
-    }
-  } else {
-    // Stage inside local sliding memory queue
-    memoryQueue.push(payload);
-    if (memoryQueue.length >= BATCH_SIZE) {
-      setImmediate(processInMemBatch);
+      console.error("BullMQ push failed, executing directly:", err.message);
     }
   }
+
+  // Instant non-blocking processing: Write to DB and emit websocket immediately!
+  processAnalyticsJob(payload).catch((err) => {
+    console.error("Instant analytics tracking job failed:", err);
+  });
 }
