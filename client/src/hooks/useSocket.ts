@@ -7,11 +7,18 @@ export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    // Connect to standard relative socket endpoint
-    const socket = io({
-      transports: ["websocket", "polling"],
-      autoConnect: true,
-    });
+    // Connect to configurable socket endpoint
+    const socketEndpoint = import.meta.env.VITE_SOCKET_URL || undefined;
+    const socket = socketEndpoint
+      ? io(socketEndpoint, {
+          transports: ["websocket", "polling"],
+          autoConnect: true,
+          withCredentials: true,
+        })
+      : io({
+          transports: ["websocket", "polling"],
+          autoConnect: true,
+        });
 
     socketRef.current = socket;
 

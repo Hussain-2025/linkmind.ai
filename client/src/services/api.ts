@@ -2,7 +2,7 @@ import axios from "axios";
 import { User, Link, Campaign, DashboardData, LinkStatsResult, AdminStats } from "../types.js";
 
 const client = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   headers: {
     "Content-Type": "application/json",
   },

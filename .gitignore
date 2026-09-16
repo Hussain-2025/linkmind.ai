@@ -1,9 +1,10 @@
 node_modules/
-build/
 dist/
+build/
 coverage/
 .DS_Store
 *.log
 .env
-coverage
+.env.local
+.env.*.local
 package-lock.json
